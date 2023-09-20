@@ -52,6 +52,13 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "/public/notes.html"));
 });
 
+//GET Route /api/notes to return all notes from JSON file
+app.get("/api/notes", (req, res) => {
+  res.json(`${req.method} request received to get notes`);
+  readFile("./db/db.json");
+  return notesList;
+});
+
 //SERVER START
 app.listen(PORT, () => {
   console.log(`App listening to https://localhost:${PORT}`);
