@@ -27,6 +27,7 @@ function readFile(fileName) {
 }
 
 function addAndWriteFile(fileName, newNote) {
+  readFile(fileName);
   notesList.push(newNote);
   const notesListString = JSON.stringify(notesList);
   fs.writeFile(fileName, notesListString, (err) => {
@@ -57,6 +58,28 @@ app.get("/api/notes", (req, res) => {
   res.json(`${req.method} request received to get notes`);
   readFile("./db/db.json");
   return notesList;
+});
+
+//POST Route /api/notes recieve new note and save
+app.post("/api/notes", (req, res) => {
+  const { noteTitle, noteText } = req.body;
+
+  if (noteTitle && noteText) {
+    const newNote = {
+      noteTitle,
+      noteText,
+    };
+    addAndWriteFile("./db/db.json", newNote);
+
+    const response = {
+      status: "Success",
+      body: newNote,
+    };
+    console.log(response);
+    res.status(201).json(response);
+  } else {
+    res.status(500).json("Error in posting review");
+  }
 });
 
 //SERVER START
