@@ -95,6 +95,11 @@ app.post("/api/notes", (req, res) => {
   }
 });
 
+//DELETE
+// app.delete("/api/notes/:id", (req, res) => {
+//   const id = req.params.id.toLowerCase();
+// });
+
 //SERVER START
 app.listen(PORT, () => {
   console.log(`App listening to http://localhost:${PORT}`);
