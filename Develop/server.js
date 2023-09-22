@@ -51,7 +51,7 @@ function addAndWriteFile(fileName, newNote) {
 
 //APP/ API
 
-//ROUTES
+//ROUTES for the pages to be sent
 
 // GET Route for homepage
 app.get("/", (req, res) => {
