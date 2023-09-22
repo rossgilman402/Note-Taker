@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 
 //DATA
-const PORT = 3000;
+const PORT = process.argv.PORT || 3000;
 const app = express();
 let notesList = [];
 
@@ -26,15 +26,25 @@ function readFile(fileName) {
   });
 }
 
-function addAndWriteFile(fileName, newNote) {
-  readFile(fileName);
-  notesList.push(newNote);
-  const notesListString = JSON.stringify(notesList);
+function writeFile(fileName) {
+  const notesListString = JSON.stringify(notesList, null, "\t");
   fs.writeFile(fileName, notesListString, (err) => {
     if (err) {
       console.log(err);
     } else {
-      console.log(`${newNote.noteTitle} has been written to JSON file`);
+      console.log(`${newNote.title} has been written to JSON file`);
+    }
+  });
+}
+
+function addAndWriteFile(fileName, newNote) {
+  fs.readFile(fileName, (err, data) => {
+    if (err) {
+      console.log(err);
+    } else {
+      notesList = JSON.parse(data);
+      notesList.push(newNote);
+      writeFile("./db/db.json");
     }
   });
 }
@@ -43,39 +53,42 @@ function addAndWriteFile(fileName, newNote) {
 
 //ROUTES
 
-//GET Route for homepage
-app.get("*", (req, res) => {
+// GET Route for homepage
+app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "/public/index.html"));
 });
 
 //GET Route for Notes page
-app.get("/", (req, res) => {
+app.get("/notes", (req, res) => {
   res.sendFile(path.join(__dirname, "/public/notes.html"));
 });
 
 //GET Route /api/notes to return all notes from JSON file
 app.get("/api/notes", (req, res) => {
-  res.json(`${req.method} request received to get notes`);
+  //Read the file to update the current note list
   readFile("./db/db.json");
-  return notesList;
+  res.json(notesList);
 });
 
 //POST Route /api/notes recieve new note and save
 app.post("/api/notes", (req, res) => {
-  const { noteTitle, noteText } = req.body;
+  //Get the new note within the body request
+  const { title, text } = req.body;
 
-  if (noteTitle && noteText) {
+  //check if the title and text is within the body and continue
+  if (title && text) {
     const newNote = {
-      noteTitle,
-      noteText,
+      title,
+      text,
     };
+    //Add to the list and rewrite to the file
     addAndWriteFile("./db/db.json", newNote);
 
+    //Create a response to send to front end
     const response = {
       status: "Success",
       body: newNote,
     };
-    console.log(response);
     res.status(201).json(response);
   } else {
     res.status(500).json("Error in posting review");
@@ -84,5 +97,5 @@ app.post("/api/notes", (req, res) => {
 
 //SERVER START
 app.listen(PORT, () => {
-  console.log(`App listening to https://localhost:${PORT}`);
+  console.log(`App listening to http://localhost:${PORT}`);
 });
