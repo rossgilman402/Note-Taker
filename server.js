@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 
 //DATA
-const PORT = process.argv.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 const app = express();
 let notesList = [];
 
